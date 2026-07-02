@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
 
+// 固定的“家庭账号”邮箱，密码由用户在 Supabase 后台设置；界面上只暴露密码框
+const APP_LOGIN_EMAIL = "household@fridge-tracker.local";
+
 // 常见食材默认保质期（天）：冷藏 fridge / 冷冻 freezer；units 第一项为默认单位（优先用数量，非质量）；group 用于库存分类展示
 // hasSeal + sealedFridge：有开封/未开封区别的食材，fridge 为“已开封”默认值，sealedFridge 为“未开封”默认值
 const SHELF_LIFE_DB = [
@@ -292,7 +295,51 @@ function statusLabel(s, location) {
   return "新鲜";
 }
 
+function PasswordGate({ onUnlocked }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!password) return;
+    setLoading(true);
+    setError(null);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email: APP_LOGIN_EMAIL,
+      password,
+    });
+    setLoading(false);
+    if (signInError) {
+      setError("密码不对，再试一下");
+      return;
+    }
+    onUnlocked(data.session);
+  }
+
+  return (
+    <div className="ft-gate-wrap">
+      <form className="ft-gate-card" onSubmit={submit}>
+        <div className="ft-title">冰箱台账</div>
+        <div className="ft-gate-hint">输入密码解锁，这台设备之后会记住</div>
+        <input
+          type="password"
+          value={password}
+          onChange={e=>setPassword(e.target.value)}
+          placeholder="密码"
+          autoFocus
+        />
+        {error && <div className="ft-gate-error">{error}</div>}
+        <button className="ft-add-btn" type="submit" disabled={loading}>
+          {loading ? "验证中…" : "解锁"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function App() {
+  const [session, setSession] = useState(undefined);
   const [items, setItems] = useState(null);
   const [tab, setTab] = useState("all");
   const [name, setName] = useState("");
@@ -317,6 +364,15 @@ export default function App() {
   const [freezerDaysTouched, setFreezerDaysTouched] = useState(false);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
     (async () => {
       try {
         const { data, error } = await supabase
@@ -330,7 +386,7 @@ export default function App() {
         setItems([]);
       }
     })();
-  }, []);
+  }, [session]);
 
   async function addItem() {
     const finalName = name.trim();
@@ -667,6 +723,14 @@ export default function App() {
     }
   }
 
+  if (session === undefined) {
+    return <div className="ft-empty">加载中…</div>;
+  }
+
+  if (session === null) {
+    return <PasswordGate onUnlocked={setSession} />;
+  }
+
   if (items === null) {
     return <div className="ft-empty">加载中…</div>;
   }
@@ -678,6 +742,7 @@ export default function App() {
         <div className="ft-stats">
           <div><b>{enriched.length}</b>件在库</div>
           <div><b style={{color: warnCount>0 ? "#C1502E" : "#33473A"}}>{warnCount}</b>需关注</div>
+          <button className="ft-logout-btn" onClick={()=>supabase.auth.signOut()}>退出</button>
         </div>
       </div>
 
