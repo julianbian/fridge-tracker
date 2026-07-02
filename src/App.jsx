@@ -319,11 +319,6 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        let { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          const { error: signInError } = await supabase.auth.signInAnonymously();
-          if (signInError) throw signInError;
-        }
         const { data, error } = await supabase
           .from("food_items")
           .select("*")
