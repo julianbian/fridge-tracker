@@ -7,30 +7,30 @@ const APP_LOGIN_EMAIL = "household@fridge-tracker.local";
 // 常见食材默认保质期（天）：冷藏 fridge / 冷冻 freezer；units 第一项为默认单位（优先用数量，非质量）；group 用于库存分类展示
 // hasSeal + sealedFridge：有开封/未开封区别的食材，fridge 为“已开封”默认值，sealedFridge 为“未开封”默认值
 const SHELF_LIFE_DB = [
-  { name:"绿叶蔬菜", fridge:5, freezer:240, units:["根","g"], group:"正餐" },
-  { name:"根茎蔬菜（土豆/胡萝卜/洋葱）", fridge:20, freezer:240, units:["个","g"], group:"正餐" },
-  { name:"西红柿", fridge:7, freezer:180, units:["个","g"], group:"正餐" },
-  { name:"黄瓜/茄子", fridge:5, freezer:180, units:["根","g"], group:"正餐" },
-  { name:"菌菇类", fridge:5, freezer:180, units:["朵","g"], group:"正餐" },
-  { name:"鸡蛋", fridge:30, freezer:0, units:["个","g"], group:"正餐" },
-  { name:"牛奶（开封）", fridge:5, freezer:60, units:["ml"], group:"零食", hasSeal:true, sealedFridge:14 },
-  { name:"酸奶", fridge:5, freezer:60, units:["盒","g"], group:"零食", hasSeal:true, sealedFridge:14 },
-  { name:"奶酪", fridge:10, freezer:180, units:["片","g"], group:"零食", hasSeal:true, sealedFridge:21 },
-  { name:"黄油", fridge:30, freezer:270, units:["块","g"], group:"正餐", hasSeal:true, sealedFridge:60 },
-  { name:"生猪/牛/羊肉", fridge:3, freezer:120, units:["份","g"], group:"正餐" },
-  { name:"生鸡鸭肉", fridge:2, freezer:270, units:["个","g"], group:"正餐" },
-  { name:"绞肉/肉馅", fridge:2, freezer:90, units:["g","份"], group:"正餐" },
-  { name:"鱼/虾/海鲜", fridge:2, freezer:90, units:["只","g"], group:"正餐" },
-  { name:"火腿/培根/香肠（开封）", fridge:7, freezer:60, units:["根","g"], group:"正餐", hasSeal:true, sealedFridge:14 },
-  { name:"豆腐/豆制品", fridge:4, freezer:90, units:["块","g"], group:"正餐" },
-  { name:"熟食/剩菜", fridge:3, freezer:90, units:["份","g"], group:"正餐" },
-  { name:"速冻饺子/馄饨/丸子", fridge:1, freezer:180, units:["个","g"], group:"正餐" },
-  { name:"面包/馒头", fridge:6, freezer:90, units:["个","g"], group:"正餐" },
-  { name:"水果（浆果类）", fridge:4, freezer:240, units:["盒","g"], group:"水果" },
-  { name:"水果（苹果/柑橘等）", fridge:25, freezer:180, units:["个","g"], group:"水果" },
-  { name:"酱料/果酱（开封）", fridge:45, freezer:0, units:["瓶","g"], group:"零食", hasSeal:true, sealedFridge:270 },
-  { name:"冰淇淋", fridge:0, freezer:60, units:["盒","ml"], group:"零食" },
-  { name:"其他/自定义", fridge:7, freezer:90, units:["份","g"], group:"正餐" },
+  { name:"绿叶蔬菜", fridge:5, freezer:240, units:["根","g"], group:"蔬菜菌菇" },
+  { name:"根茎蔬菜（土豆/胡萝卜/洋葱）", fridge:20, freezer:240, units:["个","g"], group:"蔬菜菌菇" },
+  { name:"西红柿", fridge:7, freezer:180, units:["个","g"], group:"蔬菜菌菇" },
+  { name:"黄瓜/茄子", fridge:5, freezer:180, units:["根","g"], group:"蔬菜菌菇" },
+  { name:"菌菇类", fridge:5, freezer:180, units:["朵","g"], group:"蔬菜菌菇" },
+  { name:"鸡蛋", fridge:30, freezer:0, units:["个","g"], group:"肉蛋豆腐" },
+  { name:"牛奶（开封）", fridge:5, freezer:60, units:["ml"], group:"牛制品与速食", hasSeal:true, sealedFridge:14 },
+  { name:"酸奶", fridge:5, freezer:60, units:["盒","g"], group:"牛制品与速食", hasSeal:true, sealedFridge:14 },
+  { name:"奶酪", fridge:10, freezer:180, units:["片","g"], group:"牛制品与速食", hasSeal:true, sealedFridge:21 },
+  { name:"黄油", fridge:30, freezer:270, units:["块","g"], group:"牛制品与速食", hasSeal:true, sealedFridge:60 },
+  { name:"生猪/牛/羊肉", fridge:3, freezer:120, units:["份","g"], group:"肉蛋豆腐" },
+  { name:"生鸡鸭肉", fridge:2, freezer:270, units:["个","g"], group:"肉蛋豆腐" },
+  { name:"绞肉/肉馅", fridge:2, freezer:90, units:["g","份"], group:"肉蛋豆腐" },
+  { name:"鱼/虾/海鲜", fridge:2, freezer:90, units:["只","g"], group:"肉蛋豆腐" },
+  { name:"火腿/培根/香肠（开封）", fridge:7, freezer:60, units:["根","g"], group:"肉蛋豆腐", hasSeal:true, sealedFridge:14 },
+  { name:"豆腐/豆制品", fridge:4, freezer:90, units:["块","g"], group:"肉蛋豆腐" },
+  { name:"熟食/剩菜", fridge:3, freezer:90, units:["份","g"], group:"牛制品与速食" },
+  { name:"速冻饺子/馄饨/丸子", fridge:1, freezer:180, units:["个","g"], group:"牛制品与速食" },
+  { name:"面包/馒头", fridge:6, freezer:90, units:["个","g"], group:"牛制品与速食" },
+  { name:"水果（浆果类）", fridge:4, freezer:240, units:["盒","g"], group:"新鲜水果" },
+  { name:"水果（苹果/柑橘等）", fridge:25, freezer:180, units:["个","g"], group:"新鲜水果" },
+  { name:"酱料/果酱（开封）", fridge:45, freezer:0, units:["瓶","g"], group:"牛制品与速食", hasSeal:true, sealedFridge:270 },
+  { name:"冰淇淋", fridge:0, freezer:60, units:["盒","ml"], group:"牛制品与速食" },
+  { name:"其他/自定义", fridge:7, freezer:90, units:["份","g"], group:"肉蛋豆腐" },
 ];
 
 // 具体食材名 -> 所属类别（用于联想输入 + 自动估算保质期/单位，不限制用户实际输入）
@@ -58,6 +58,7 @@ const FOOD_INDEX = [
   { name:"冬瓜", category:"黄瓜/茄子" }, { name:"苦瓜", category:"黄瓜/茄子" },
   { name:"西兰花", category:"黄瓜/茄子" }, { name:"花菜", category:"黄瓜/茄子" }, { name:"豆角", category:"黄瓜/茄子" },
   { name:"四季豆", category:"黄瓜/茄子" }, { name:"秋葵", category:"黄瓜/茄子" }, { name:"芦笋", category:"黄瓜/茄子" },
+  { name:"冻豌豆", category:"黄瓜/茄子", units:["g"], freezer:360 },
   { name:"香菇", category:"菌菇类" }, { name:"金针菇", category:"菌菇类" }, { name:"平菇", category:"菌菇类" },
   { name:"杏鲍菇", category:"菌菇类" }, { name:"蘑菇", category:"菌菇类" }, { name:"木耳", category:"菌菇类" },
   { name:"草菇", category:"菌菇类" }, { name:"茶树菇", category:"菌菇类" }, { name:"银耳", category:"菌菇类" },
@@ -73,14 +74,17 @@ const FOOD_INDEX = [
   { name:"排骨", category:"生猪/牛/羊肉" }, { name:"五花肉", category:"生猪/牛/羊肉" }, { name:"牛排", category:"生猪/牛/羊肉" },
   { name:"里脊肉", category:"生猪/牛/羊肉" }, { name:"牛腩", category:"生猪/牛/羊肉" }, { name:"羊排", category:"生猪/牛/羊肉" },
   { name:"猪蹄", category:"生猪/牛/羊肉" }, { name:"猪肝", category:"生猪/牛/羊肉" },
+  { name:"牛肉卷", category:"生猪/牛/羊肉" },
   { name:"鸡肉", category:"生鸡鸭肉" }, { name:"鸡胸肉", category:"生鸡鸭肉" }, { name:"鸡腿", category:"生鸡鸭肉" },
   { name:"鸭肉", category:"生鸡鸭肉" }, { name:"鸡翅", category:"生鸡鸭肉" },
   { name:"鸡爪", category:"生鸡鸭肉" }, { name:"鸭腿", category:"生鸡鸭肉" }, { name:"整鸡", category:"生鸡鸭肉" },
+  { name:"鸡切件", category:"生鸡鸭肉", units:["g","顿"] },
   { name:"猪肉馅", category:"绞肉/肉馅" }, { name:"牛肉馅", category:"绞肉/肉馅" }, { name:"肉末", category:"绞肉/肉馅" },
   { name:"鱼肉馅", category:"绞肉/肉馅" },
   { name:"鱼", category:"鱼/虾/海鲜" }, { name:"虾", category:"鱼/虾/海鲜" }, { name:"螃蟹", category:"鱼/虾/海鲜" },
   { name:"鱿鱼", category:"鱼/虾/海鲜" }, { name:"三文鱼", category:"鱼/虾/海鲜" }, { name:"带鱼", category:"鱼/虾/海鲜" },
   { name:"生蚝", category:"鱼/虾/海鲜" }, { name:"扇贝", category:"鱼/虾/海鲜" },
+  { name:"玉带子", category:"鱼/虾/海鲜", units:["g"] },
   { name:"基围虾", category:"鱼/虾/海鲜" }, { name:"皮皮虾", category:"鱼/虾/海鲜" }, { name:"蛤蜊", category:"鱼/虾/海鲜" },
   { name:"鲈鱼", category:"鱼/虾/海鲜" }, { name:"鳕鱼", category:"鱼/虾/海鲜" }, { name:"罗非鱼", category:"鱼/虾/海鲜" },
   { name:"火腿", category:"火腿/培根/香肠（开封）" }, { name:"培根", category:"火腿/培根/香肠（开封）" },
@@ -96,6 +100,7 @@ const FOOD_INDEX = [
   { name:"汤圆", category:"速冻饺子/馄饨/丸子" }, { name:"丸子", category:"速冻饺子/馄饨/丸子" },
   { name:"烧卖", category:"速冻饺子/馄饨/丸子" }, { name:"春卷", category:"速冻饺子/馄饨/丸子" },
   { name:"锅贴", category:"速冻饺子/馄饨/丸子" }, { name:"虾饺", category:"速冻饺子/馄饨/丸子" },
+  { name:"鱼豆腐", category:"速冻饺子/馄饨/丸子" },
   { name:"面包", category:"面包/馒头" }, { name:"馒头", category:"面包/馒头" }, { name:"花卷", category:"面包/馒头" },
   { name:"吐司", category:"面包/馒头" }, { name:"包子", category:"面包/馒头" },
   { name:"贝果", category:"面包/馒头" }, { name:"生煎包", category:"面包/馒头" },
@@ -136,7 +141,7 @@ function resolveCategoryEntry(rawName) {
   return SHELF_LIFE_DB.find(d => d.name === "其他/自定义");
 }
 
-const GROUP_ORDER = ["正餐", "零食", "水果"];
+const GROUP_ORDER = ["蔬菜菌菇", "肉蛋豆腐", "新鲜水果", "牛制品与速食"];
 
 const SUGGESTION_POOL = (() => {
   const seen = new Set();
@@ -232,6 +237,23 @@ function rowToItem(row) {
   };
 }
 
+// food_history 行 -> 时间线展示用的记录
+function rowToHistory(row) {
+  return {
+    id: row.id,
+    action: row.action,
+    name: row.name,
+    qty: row.quantity != null ? formatNum(row.quantity) + (row.unit || "") : "",
+    location: row.location,
+    eventAt: row.event_at,
+  };
+}
+
+function formatEventTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("zh-CN", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false });
+}
+
 function itemFieldsToRow({ name, location, addedDate, qty, fridgeDays, freezerDays }) {
   const { num, unit } = splitQty(qty);
   return {
@@ -250,6 +272,9 @@ function daysBetween(a, b) {
 }
 function todayStr() {
   return new Date().toISOString().slice(0,10);
+}
+function elapsedSince(addedDate) {
+  return daysBetween(new Date(addedDate + "T00:00:00"), new Date(todayStr() + "T00:00:00"));
 }
 
 function getStatus(item) {
@@ -340,7 +365,9 @@ function PasswordGate({ onUnlocked }) {
 
 export default function App() {
   const [session, setSession] = useState(undefined);
+  const [page, setPage] = useState("inventory");
   const [items, setItems] = useState(null);
+  const [history, setHistory] = useState(null);
   const [tab, setTab] = useState("all");
   const [name, setName] = useState("");
   const [showSuggest, setShowSuggest] = useState(false);
@@ -386,7 +413,35 @@ export default function App() {
         setItems([]);
       }
     })();
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("food_history")
+          .select("*")
+          .order("event_at", { ascending: false })
+          .limit(200);
+        if (error) throw error;
+        setHistory(data.map(rowToHistory));
+      } catch (e) {
+        console.error(e);
+        setHistory([]);
+      }
+    })();
   }, [session]);
+
+  async function logHistory(action, { name, quantity, unit, location }) {
+    try {
+      const { data, error } = await supabase
+        .from("food_history")
+        .insert({ action, name, quantity: quantity != null ? Number(quantity) : null, unit: unit || null, location })
+        .select()
+        .single();
+      if (error) throw error;
+      setHistory(prev => [rowToHistory(data), ...(prev || [])]);
+    } catch (e) {
+      console.error("history log failed", e);
+    }
+  }
 
   async function addItem() {
     const finalName = name.trim();
@@ -403,6 +458,7 @@ export default function App() {
     const { data, error } = await supabase.from("food_items").insert(row).select().single();
     if (error) { console.error(error); return; }
     setItems(prev => [rowToItem(data), ...(prev || [])]);
+    logHistory("add", { name: finalName, quantity: row.quantity, unit: row.unit, location });
     setName("");
     setQty("");
     setUnitTouched(false);
@@ -517,6 +573,7 @@ export default function App() {
       if (error) { console.error(error); return; }
       setItems(prev => (prev || []).map(i => i.id === item.id ? rowToItem(data) : i));
     }
+    logHistory("eat", { name: item.name, quantity: amount, unit: qUnit || eatUnit, location: item.location });
     setEatingId(null);
     setEatAmount("");
   }
@@ -590,14 +647,21 @@ export default function App() {
             )}
             <div className="ft-card-edit-row">
               <input
-                value={editDraft.fridgeDays}
-                onChange={e=>setEditDraft(d=>({ ...d, fridgeDays: e.target.value }))}
-                placeholder="冷藏保质期(天)"
-              />
-              <input
-                value={editDraft.freezerDays}
-                onChange={e=>setEditDraft(d=>({ ...d, freezerDays: e.target.value }))}
-                placeholder="冷冻保质期(天)"
+                value={(() => {
+                  const lifeStr = editDraft.location === "fridge" ? editDraft.fridgeDays : editDraft.freezerDays;
+                  if (lifeStr.trim() === "") return "";
+                  return String(parseInt(lifeStr, 10) - elapsedSince(editDraft.addedDate));
+                })()}
+                onChange={e=>{
+                  const remainingTyped = e.target.value;
+                  const field = editDraft.location === "fridge" ? "fridgeDays" : "freezerDays";
+                  setEditDraft(d => {
+                    if (remainingTyped.trim() === "") return { ...d, [field]: "" };
+                    const newLife = parseInt(remainingTyped, 10) + elapsedSince(d.addedDate);
+                    return { ...d, [field]: String(newLife) };
+                  });
+                }}
+                placeholder={`剩余${editDraft.location === "fridge" ? "冷藏" : "冷冻"}天数`}
               />
             </div>
             <div className="ft-card-edit-btns">
@@ -651,8 +715,8 @@ export default function App() {
     const groups = {};
     GROUP_ORDER.forEach(g => { groups[g] = []; });
     filtered.forEach(item => {
-      const g = resolveCategoryEntry(item.name).group || "正餐";
-      (groups[g] || groups["正餐"]).push(item);
+      const g = resolveCategoryEntry(item.name).group || "肉蛋豆腐";
+      (groups[g] || groups["肉蛋豆腐"]).push(item);
     });
     return groups;
   }, [filtered]);
@@ -746,6 +810,35 @@ export default function App() {
         </div>
       </div>
 
+      <div className="ft-page-nav">
+        <div className={"ft-tab" + (page==="inventory"?" active":"")} onClick={()=>setPage("inventory")}>库存</div>
+        <div className={"ft-tab" + (page==="history"?" active":"")} onClick={()=>setPage("history")}>历史</div>
+      </div>
+
+      {page === "history" ? (
+        history === null ? (
+          <div className="ft-empty">加载中…</div>
+        ) : history.length === 0 ? (
+          <div className="ft-empty">还没有添加或吃掉任何食材的记录</div>
+        ) : (
+          <div className="ft-timeline">
+            {history.map(h => (
+              <div key={h.id} className={"ft-timeline-item ft-timeline-" + h.action}>
+                <div className="ft-timeline-icon">{h.action === "add" ? "➕" : "🍽"}</div>
+                <div className="ft-timeline-body">
+                  <div className="ft-timeline-title">
+                    {h.action === "add" ? "添加了" : "吃了"} {h.name}{h.qty ? `（${h.qty}）` : ""}
+                  </div>
+                  <div className="ft-timeline-meta">
+                    {h.location === "fridge" ? "冷藏" : h.location === "freezer" ? "冷冻" : ""} · {formatEventTime(h.eventAt)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+      <>
       <div className="ft-form">
         <div className="ft-field ft-autocomplete">
           <label>食材种类</label>
@@ -844,6 +937,8 @@ export default function App() {
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

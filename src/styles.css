@@ -147,6 +147,19 @@ html, body {
 .ft-gate-error { color: var(--red); font-size:12.5px; text-align:center; }
 .ft-gate-card .ft-add-btn { width:100%; }
 
+.ft-page-nav { display:flex; gap:8px; margin-bottom:18px; }
+.ft-timeline { display:flex; flex-direction:column; gap:10px; }
+.ft-timeline-item {
+  background:#fff; border-radius:12px; padding:12px 14px; box-shadow: var(--card-shadow);
+  display:flex; align-items:flex-start; gap:12px; border-left:4px solid var(--sage);
+}
+.ft-timeline-item.ft-timeline-add { border-left-color: var(--pantry-green-light); }
+.ft-timeline-item.ft-timeline-eat { border-left-color: var(--yolk); }
+.ft-timeline-icon { font-size:18px; line-height:1; margin-top:2px; }
+.ft-timeline-body { flex:1; min-width:0; }
+.ft-timeline-title { font-weight:700; font-size:14.5px; }
+.ft-timeline-meta { font-size:11.5px; color:#8a8874; margin-top:3px; }
+
 .ft-recipe-btn {
   background: var(--pantry-green); color:#fff; border:none; border-radius:10px;
   padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; margin-top:8px;
