@@ -391,9 +391,19 @@ export default function App() {
   const [freezerDaysTouched, setFreezerDaysTouched] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    // 迁移前每台设备各自匿名登录过；这类残留 session 的 email 对不上共享账号，
+    // 需要强制登出，否则会一直读写到各自独立的匿名身份下，出现"每台设备数据不一样"的问题
+    function acceptSession(s) {
+      if (s && s.user?.email !== APP_LOGIN_EMAIL) {
+        supabase.auth.signOut();
+        setSession(null);
+        return;
+      }
+      setSession(s);
+    }
+    supabase.auth.getSession().then(({ data }) => acceptSession(data.session));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
+      acceptSession(newSession);
     });
     return () => listener.subscription.unsubscribe();
   }, []);
