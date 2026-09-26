@@ -159,6 +159,12 @@ html, body {
 .ft-timeline-body { flex:1; min-width:0; }
 .ft-timeline-title { font-weight:700; font-size:14.5px; }
 .ft-timeline-meta { font-size:11.5px; color:#8a8874; margin-top:3px; }
+.ft-timeline-undo {
+  flex:none; align-self:center; background:none; border:1.5px solid var(--paper-dark); border-radius:7px;
+  padding:5px 10px; font-size:12px; font-weight:600; color:#6f6d5c; cursor:pointer;
+}
+.ft-timeline-undo:hover { border-color: var(--rust); color: var(--rust); }
+.ft-timeline-undo:disabled { opacity:0.6; cursor:default; }
 
 .ft-recipe-btn {
   background: var(--pantry-green); color:#fff; border:none; border-radius:10px;

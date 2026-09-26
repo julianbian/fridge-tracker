@@ -244,8 +244,14 @@ function rowToHistory(row) {
     action: row.action,
     name: row.name,
     qty: row.quantity != null ? formatNum(row.quantity) + (row.unit || "") : "",
+    quantityNum: row.quantity,
+    unit: row.unit,
     location: row.location,
     eventAt: row.event_at,
+    itemId: row.item_id,
+    fridgeDays: row.fridge_days,
+    freezerDays: row.freezer_days,
+    addedDate: row.added_date,
   };
 }
 
@@ -368,6 +374,7 @@ export default function App() {
   const [page, setPage] = useState("inventory");
   const [items, setItems] = useState(null);
   const [history, setHistory] = useState(null);
+  const [undoingId, setUndoingId] = useState(null);
   const [tab, setTab] = useState("all");
   const [name, setName] = useState("");
   const [showSuggest, setShowSuggest] = useState(false);
@@ -439,17 +446,75 @@ export default function App() {
     })();
   }, [session]);
 
-  async function logHistory(action, { name, quantity, unit, location }) {
+  async function logHistory(action, { name, quantity, unit, location, itemId, fridgeDays, freezerDays, addedDate }) {
     try {
       const { data, error } = await supabase
         .from("food_history")
-        .insert({ action, name, quantity: quantity != null ? Number(quantity) : null, unit: unit || null, location })
+        .insert({
+          action, name,
+          quantity: quantity != null ? Number(quantity) : null,
+          unit: unit || null,
+          location,
+          item_id: itemId || null,
+          fridge_days: fridgeDays != null ? fridgeDays : null,
+          freezer_days: freezerDays != null ? freezerDays : null,
+          added_date: addedDate || null,
+        })
         .select()
         .single();
       if (error) throw error;
       setHistory(prev => [rowToHistory(data), ...(prev || [])]);
     } catch (e) {
       console.error("history log failed", e);
+    }
+  }
+
+  async function undoHistory(entry) {
+    if (undoingId) return;
+    setUndoingId(entry.id);
+    try {
+      if (entry.action === "add") {
+        // 撤回添加：把这条记录当时新增的那件库存删掉（如果后续被吃掉/删除过，这里就什么都不用做）
+        if (entry.itemId) {
+          const { error } = await supabase.from("food_items").delete().eq("id", entry.itemId);
+          if (error) throw error;
+          setItems(prev => (prev || []).filter(i => i.id !== entry.itemId));
+        }
+      } else {
+        // 撤回吃掉：把吃掉的数量加回去；如果那件库存已经被吃完删除了，就按记录重新建回来
+        const existing = entry.itemId ? (items || []).find(i => i.id === entry.itemId) : null;
+        if (existing) {
+          const { num, unit: curUnit } = splitQty(existing.qty);
+          const restored = (num !== "" ? parseFloat(num) : 0) + (entry.quantityNum || 0);
+          const { data, error } = await supabase
+            .from("food_items")
+            .update({ quantity: Number(formatNum(restored)), unit: entry.unit || curUnit || null })
+            .eq("id", existing.id)
+            .select()
+            .single();
+          if (error) throw error;
+          setItems(prev => (prev || []).map(i => i.id === existing.id ? rowToItem(data) : i));
+        } else {
+          const row = itemFieldsToRow({
+            name: entry.name,
+            location: entry.location,
+            addedDate: entry.addedDate || todayStr(),
+            qty: entry.quantityNum != null ? formatNum(entry.quantityNum) + (entry.unit || "") : "",
+            fridgeDays: entry.fridgeDays != null ? entry.fridgeDays : resolveCategoryEntry(entry.name).fridge,
+            freezerDays: entry.freezerDays != null ? entry.freezerDays : resolveCategoryEntry(entry.name).freezer,
+          });
+          const { data, error } = await supabase.from("food_items").insert(row).select().single();
+          if (error) throw error;
+          setItems(prev => [rowToItem(data), ...(prev || [])]);
+        }
+      }
+      const { error: delError } = await supabase.from("food_history").delete().eq("id", entry.id);
+      if (delError) throw delError;
+      setHistory(prev => (prev || []).filter(h => h.id !== entry.id));
+    } catch (e) {
+      console.error("undo failed", e);
+    } finally {
+      setUndoingId(null);
     }
   }
 
@@ -468,7 +533,10 @@ export default function App() {
     const { data, error } = await supabase.from("food_items").insert(row).select().single();
     if (error) { console.error(error); return; }
     setItems(prev => [rowToItem(data), ...(prev || [])]);
-    logHistory("add", { name: finalName, quantity: row.quantity, unit: row.unit, location });
+    logHistory("add", {
+      name: finalName, quantity: row.quantity, unit: row.unit, location,
+      itemId: data.id, fridgeDays, freezerDays, addedDate,
+    });
     setName("");
     setQty("");
     setUnitTouched(false);
@@ -583,7 +651,10 @@ export default function App() {
       if (error) { console.error(error); return; }
       setItems(prev => (prev || []).map(i => i.id === item.id ? rowToItem(data) : i));
     }
-    logHistory("eat", { name: item.name, quantity: amount, unit: qUnit || eatUnit, location: item.location });
+    logHistory("eat", {
+      name: item.name, quantity: amount, unit: qUnit || eatUnit, location: item.location,
+      itemId: item.id, fridgeDays: item.fridgeDays, freezerDays: item.freezerDays, addedDate: item.addedDate,
+    });
     setEatingId(null);
     setEatAmount("");
   }
@@ -602,6 +673,8 @@ export default function App() {
                 value={eatAmount}
                 onChange={e=>setEatAmount(e.target.value)}
                 placeholder={hasQty ? `吃了多少（${splitQty(item.qty).unit}）` : "还剩多少"}
+                inputMode="decimal"
+                autoComplete="off"
                 autoFocus
               />
               {!hasQty && (
@@ -639,6 +712,8 @@ export default function App() {
                 value={editDraft.qtyNum}
                 onChange={e=>setEditDraft(d=>({ ...d, qtyNum: e.target.value }))}
                 placeholder="数量"
+                inputMode="decimal"
+                autoComplete="off"
               />
               <select
                 className="ft-qty-unit"
@@ -672,6 +747,8 @@ export default function App() {
                   });
                 }}
                 placeholder={`剩余${editDraft.location === "fridge" ? "冷藏" : "冷冻"}天数`}
+                inputMode="numeric"
+                autoComplete="off"
               />
             </div>
             <div className="ft-card-edit-btns">
@@ -843,6 +920,13 @@ export default function App() {
                     {h.location === "fridge" ? "冷藏" : h.location === "freezer" ? "冷冻" : ""} · {formatEventTime(h.eventAt)}
                   </div>
                 </div>
+                <button
+                  className="ft-timeline-undo"
+                  onClick={()=>undoHistory(h)}
+                  disabled={undoingId === h.id}
+                >
+                  {undoingId === h.id ? "撤回中…" : "撤回"}
+                </button>
               </div>
             ))}
           </div>
@@ -888,7 +972,7 @@ export default function App() {
         <div className="ft-field">
           <label>数量（选填）</label>
           <div className="ft-qty-row">
-            <input className="ft-qty-num" value={qty} onChange={e=>setQty(e.target.value)} placeholder="如 500" />
+            <input className="ft-qty-num" value={qty} onChange={e=>setQty(e.target.value)} placeholder="如 500" inputMode="decimal" autoComplete="off" />
             <select
               className="ft-qty-unit"
               value={unit}
