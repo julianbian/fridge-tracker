@@ -165,6 +165,8 @@ html, body {
 }
 .ft-timeline-undo:hover { border-color: var(--rust); color: var(--rust); }
 .ft-timeline-undo:disabled { opacity:0.6; cursor:default; }
+.ft-timeline-item.ft-timeline-undone { opacity:0.55; border-left-color: var(--paper-dark); }
+.ft-timeline-undone-label { flex:none; align-self:center; font-size:12px; color:#9a9887; font-weight:600; }
 
 .ft-recipe-btn {
   background: var(--pantry-green); color:#fff; border:none; border-radius:10px;

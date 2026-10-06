@@ -252,6 +252,7 @@ function rowToHistory(row) {
     fridgeDays: row.fridge_days,
     freezerDays: row.freezer_days,
     addedDate: row.added_date,
+    undone: !!row.undone,
   };
 }
 
@@ -470,7 +471,7 @@ export default function App() {
   }
 
   async function undoHistory(entry) {
-    if (undoingId) return;
+    if (undoingId || entry.undone) return;
     setUndoingId(entry.id);
     try {
       if (entry.action === "add") {
@@ -508,9 +509,9 @@ export default function App() {
           setItems(prev => [rowToItem(data), ...(prev || [])]);
         }
       }
-      const { error: delError } = await supabase.from("food_history").delete().eq("id", entry.id);
-      if (delError) throw delError;
-      setHistory(prev => (prev || []).filter(h => h.id !== entry.id));
+      const { error: markError } = await supabase.from("food_history").update({ undone: true }).eq("id", entry.id);
+      if (markError) throw markError;
+      setHistory(prev => (prev || []).map(h => h.id === entry.id ? { ...h, undone: true } : h));
     } catch (e) {
       console.error("undo failed", e);
     } finally {
@@ -627,9 +628,12 @@ export default function App() {
     const amount = parseFloat(eatAmount);
     if (!amount || amount <= 0) return;
     const { num, unit: qUnit } = splitQty(item.qty);
+    // 整件吃完会先删掉 food_items 行；此时 history.item_id 外键指向已不存在的行会插入失败，所以留空
+    let historyItemId = item.id;
     if (num !== "") {
       const remaining = parseFloat(num) - amount;
       if (remaining <= 0) {
+        historyItemId = null;
         await removeItem(item.id);
       } else {
         const { data, error } = await supabase
@@ -653,7 +657,7 @@ export default function App() {
     }
     logHistory("eat", {
       name: item.name, quantity: amount, unit: qUnit || eatUnit, location: item.location,
-      itemId: item.id, fridgeDays: item.fridgeDays, freezerDays: item.freezerDays, addedDate: item.addedDate,
+      itemId: historyItemId, fridgeDays: item.fridgeDays, freezerDays: item.freezerDays, addedDate: item.addedDate,
     });
     setEatingId(null);
     setEatAmount("");
@@ -910,7 +914,7 @@ export default function App() {
         ) : (
           <div className="ft-timeline">
             {history.map(h => (
-              <div key={h.id} className={"ft-timeline-item ft-timeline-" + h.action}>
+              <div key={h.id} className={"ft-timeline-item ft-timeline-" + h.action + (h.undone ? " ft-timeline-undone" : "")}>
                 <div className="ft-timeline-icon">{h.action === "add" ? "➕" : "🍽"}</div>
                 <div className="ft-timeline-body">
                   <div className="ft-timeline-title">
@@ -920,13 +924,17 @@ export default function App() {
                     {h.location === "fridge" ? "冷藏" : h.location === "freezer" ? "冷冻" : ""} · {formatEventTime(h.eventAt)}
                   </div>
                 </div>
-                <button
-                  className="ft-timeline-undo"
-                  onClick={()=>undoHistory(h)}
-                  disabled={undoingId === h.id}
-                >
-                  {undoingId === h.id ? "撤回中…" : "撤回"}
-                </button>
+                {h.undone ? (
+                  <div className="ft-timeline-undone-label">已撤回</div>
+                ) : (
+                  <button
+                    className="ft-timeline-undo"
+                    onClick={()=>undoHistory(h)}
+                    disabled={undoingId === h.id}
+                  >
+                    {undoingId === h.id ? "撤回中…" : "撤回"}
+                  </button>
+                )}
               </div>
             ))}
           </div>
